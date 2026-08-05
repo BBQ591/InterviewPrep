@@ -1,0 +1,15 @@
+* Things to Work On
++ if we have a previous function that we wrote in an interview or something, try to reuse it!
+  + this includes if we are implementing. think about, if we were to use that previous function, how would we reuse it?
+* Things to Remember
++ functional side:
+  + remember to return an object always from a function. never mutate state
+    + only mutate state if you know that you wont be going back
+  + think about code from a high level. like do this first, get the result, and use this result in the next step, then compute the result, ...
++ think about what is independent
+  + split it into sections and conquer each section
+  + for stocks:
+    + each stock is independent. treat it as its own problem
+  + for git:
+    + each section from the root code is independent. treat it as such
+  + think about what is independent. THINK OF INDEPENDENT AND INDEPENDENT INDEPENDENT
