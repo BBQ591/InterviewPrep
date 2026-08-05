@@ -12,6 +12,7 @@ namespace fs = filesystem;
 #define MAIN_H
 struct MetadataObject {
   string root_path;
+  string curr_branch;
 };
 
 struct Commit {
@@ -40,6 +41,8 @@ class Git {
   void commit(string message, size_t timestamp);
   void log();
   void checkout(string hash, FileType type, fs::path full_path);
+  void create_branch(string name);
+  void diff(string hash1, string hash2);
 
  private:
   MetadataObject parse_metadata(fs::path path);
@@ -47,6 +50,9 @@ class Git {
   string read_file(ifstream& stream);
   void store_file(string stream, fs::path);
   vector<string> split(string str, char splitter);
+  pair<string, string> split_by_quote(string line);
+  void _checkout(string hash, FileType type, fs::path full_path);
+  vector<pair<string, size_t>> get_branches();
 };
 
 #endif

@@ -1,12 +1,35 @@
 #include "main.h"
 
 #include <filesystem>
+#include <stdexcept>
 
 using namespace std;
 // metadata about git
 Git::Git() {
   metadata = parse_metadata(fs::current_path());
   git_path = (fs::path)metadata.root_path / ".git";
+}
+void handle_delete_line(int line_num, string new_val, fs::path path) {
+  vector<string> all_lines;
+  ifstream file(path);
+  string line;
+  while (getline(file, line)) {
+    all_lines.push_back(line);
+  }
+  file.close();
+  vector<string> new_set;
+  for (int i = 0; i < all_lines.size(); i++) {
+    if (i == line_num && new_val != "") {
+      new_set.push_back(new_val);
+    } else if (i != line_num) {
+      new_set.push_back(all_lines[i]);
+    }
+  }
+  ofstream file2(path);
+  for (int i = 0; i < new_set.size(); i++) {
+    file2 << new_set[i] << endl;
+  }
+  file2.close();
 }
 
 size_t Git::hash_file(fs::path path) {
@@ -31,6 +54,7 @@ pair<size_t, FileType> Git::write_tree(fs::path path) {
   if (fs::is_regular_file(path)) {
     return {hash_file(path), FileType::FILE};
   }
+
   string file_content;
   for (const auto& entry : fs::directory_iterator(path)) {
     if (entry.path().filename().string()[0] == '.') {
@@ -66,6 +90,37 @@ void Git::commit(string message, size_t timestamp) {
   ofstream commit_file((fs::path)metadata.root_path / ".git" / "commit.txt",
                        ios::app);
   commit_file << "\"" << message << "\" " << timestamp << " " << hash << endl;
+  commit_file.close();
+  vector<pair<string, size_t>> branches = get_branches();
+  int index = -1;
+  for (int i = 0; i < branches.size(); i++) {
+    if (branches[i].first == metadata.curr_branch) {
+      index = i;
+      break;
+    }
+  }
+  cout << "THESE ARE CHANGES" << endl;
+  string new_line = "\"" + metadata.curr_branch + "\" " + to_string(hash);
+  handle_delete_line(index, new_line,
+                     (fs::path)metadata.root_path / ".git" / "branches.txt");
+}
+
+vector<string> Git::split(string str, char splitter) {
+  vector<string> out;
+  stringstream stringer(str);
+  string word;
+  vector<string> words;
+  while (getline(stringer, word, splitter)) {
+    out.push_back(word);
+  }
+  return out;
+}
+
+pair<string, string> Git::split_by_quote(string line) {
+  vector<string> split_quotes = split(line, '\"');
+  string message = split_quotes[1];
+  string remaining = split_quotes[2];
+  return {message, remaining};
 }
 
 void Git::log() {
@@ -73,9 +128,9 @@ void Git::log() {
   vector<Commit> commits;
   string line;
   while (getline(commit_file, line)) {
-    vector<string> split_quotes = split(line, '\"');
-    string message = split_quotes[1];
-    string remaining = split_quotes[2];
+    pair<string, string> out = split_by_quote(line);
+    string message = out.first;
+    string remaining = out.second;
     vector<string> split_space = split(remaining, ' ');
     commits.push_back(
         Commit{message, static_cast<std::size_t>(std::stoull(split_space[1])),
@@ -92,7 +147,22 @@ void Git::log() {
   }
 }
 
-void Git::checkout(string hash, FileType type, fs::path full_path) {
+vector<pair<string, size_t>> Git::get_branches() {
+  fs::path metadata_path =
+      (fs::path)metadata.root_path / ".git" / "branches.txt";
+  ifstream file(metadata_path);
+  string line;
+  vector<pair<string, size_t>> out;
+  while (getline(file, line)) {
+    pair<string, string> split_quotes = split_by_quote(line);
+    string branch = split_quotes.first;
+    size_t hash = stoull(split_quotes.second.substr(1));
+    out.push_back({branch, hash});
+  }
+  return out;
+}
+
+void Git::_checkout(string hash, FileType type, fs::path full_path) {
   fs::path path = (fs::path)metadata.root_path / ".git" / hash;
   if (type == FileType::FILE) {
     fs::path file_path = (fs::path)metadata.root_path / full_path;
@@ -125,20 +195,28 @@ void Git::checkout(string hash, FileType type, fs::path full_path) {
     checkout(entry.hash, entry.type, full_path / entry.name);
   }
 }
-vector<string> Git::split(string str, char splitter) {
-  vector<string> out;
-  stringstream stringer(str);
-  string word;
-  vector<string> words;
-  while (getline(stringer, word, splitter)) {
-    out.push_back(word);
-  }
-  return out;
-}
 
+void Git::checkout(string hash, FileType type, fs::path full_path) {
+  vector<pair<string, size_t>> branches = get_branches();
+  int is_branch = -1;
+  for (int i = 0; i < branches.size(); i++) {
+    if (branches[i].first == hash) {
+      is_branch = i;
+      break;
+    }
+  }
+  string tmp_hash = hash;
+  if (is_branch != -1) {
+    tmp_hash = to_string(branches[is_branch].second);
+    handle_delete_line(1, branches[is_branch].first,
+                       (fs::path)metadata.root_path / ".git" / "metadata.txt");
+  }
+  _checkout(tmp_hash, type, full_path);
+}
 MetadataObject Git::read_lines(ifstream& file) {
   MetadataObject obj;
   getline(file, obj.root_path);
+  getline(file, obj.curr_branch);
   return obj;
 }
 MetadataObject Git::parse_metadata(fs::path curr_dir) {
@@ -190,3 +268,21 @@ void Git::store_file(string content, fs::path path) {
   file << content;
   file.close();
 }
+
+void Git::create_branch(string branch_name) {
+  vector<pair<string, size_t>> branches = get_branches();
+  if (branches[0].first != "master") {
+    throw runtime_error("branch state is wrong");
+  }
+  if (branches[0].second == 0) {
+    throw runtime_error(
+        "you have not committed. please commit before creating a new branch");
+  }
+  string write = "\"" + branch_name + "\" " + to_string(branches[0].second);
+  ofstream out((fs::path)metadata.root_path / ".git" / "branches.txt",
+               ios::app);
+  out << write << endl;
+  out.close();
+}
+
+void Git::diff(string hash1, string hash2) {}

@@ -11,7 +11,13 @@ void handle_init() {
   fs::path curr_path = fs::current_path();
   fs::create_directories(curr_path / ".git");
   ofstream file(curr_path / ".git" / "metadata.txt");
-  file << curr_path.string();
+  file << curr_path.string() << endl;
+  file << "master" << endl;
+  file.close();
+  ofstream file2(curr_path / ".git" / "branches.txt");
+  file2 << "\"master\" 0" << endl;
+
+  file2.close();
 }
 
 void handle_hashing(string file) {
@@ -45,6 +51,11 @@ void handle_checkout(string hash) {
   obj.checkout(hash, FileType::DIRECTORY, "");
 }
 
+void handle_create_branch(string branch_name) {
+  Git obj;
+  obj.create_branch(branch_name);
+}
+
 int main(int argc, char* argv[]) {
   if (argc <= 1) {
     cout << "No Arguments" << endl;
@@ -70,5 +81,8 @@ int main(int argc, char* argv[]) {
   }
   if (strcmp(argv[1], "checkout") == 0) {
     handle_checkout(argv[2]);
+  }
+  if (strcmp(argv[1], "create_branch") == 0) {
+    handle_create_branch(argv[2]);
   }
 }
