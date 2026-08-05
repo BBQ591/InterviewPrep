@@ -85,12 +85,6 @@ pair<size_t, FileType> Git::write_tree(fs::path path) {
 }
 
 void Git::commit(string message, size_t timestamp) {
-  pair<size_t, FileType> out = write_tree(fs::current_path());
-  size_t hash = out.first;
-  ofstream commit_file((fs::path)metadata.root_path / ".git" / "commit.txt",
-                       ios::app);
-  commit_file << "\"" << message << "\" " << timestamp << " " << hash << endl;
-  commit_file.close();
   vector<pair<string, size_t>> branches = get_branches();
   int index = -1;
   for (int i = 0; i < branches.size(); i++) {
@@ -99,10 +93,18 @@ void Git::commit(string message, size_t timestamp) {
       break;
     }
   }
-  cout << "THESE ARE CHANGES" << endl;
+  pair<size_t, FileType> out = write_tree(fs::current_path());
+  size_t hash = out.first;
+  ofstream commit_file((fs::path)metadata.root_path / ".git" / "commit.txt",
+                       ios::app);
+  commit_file << "\"" << message << "\" " << timestamp << " " << hash << " "
+              << branches[index].second << endl;
+  commit_file.close();
+
   string new_line = "\"" + metadata.curr_branch + "\" " + to_string(hash);
   handle_delete_line(index, new_line,
                      (fs::path)metadata.root_path / ".git" / "branches.txt");
+  // this is a tmp comment
 }
 
 vector<string> Git::split(string str, char splitter) {
@@ -123,7 +125,7 @@ pair<string, string> Git::split_by_quote(string line) {
   return {message, remaining};
 }
 
-void Git::log() {
+vector<Commit> Git::get_commits() {
   ifstream commit_file((fs::path)metadata.root_path / ".git" / "commit.txt");
   vector<Commit> commits;
   string line;
@@ -132,15 +134,41 @@ void Git::log() {
     string message = out.first;
     string remaining = out.second;
     vector<string> split_space = split(remaining, ' ');
-    commits.push_back(
-        Commit{message, static_cast<std::size_t>(std::stoull(split_space[1])),
-               static_cast<std::size_t>(std::stoull(split_space[2]))});
+    string timestamp = split_space[1];
+    string curr_hash = split_space[2];
+    string parent_hash = split_space[3];
+    commits.push_back(Commit{message, static_cast<int>(std::stoull(timestamp)),
+                             static_cast<std::size_t>(std::stoull(curr_hash)),
+                             static_cast<size_t>(stoull(parent_hash))});
   }
-  reverse(commits.begin(), commits.end());
-  for (auto& commit : commits) {
+  return commits;
+}
+
+void Git::log() {
+  unordered_map<size_t, size_t> edges;
+  unordered_map<size_t, Commit> map_commits;
+  vector<Commit> commits = get_commits();
+  for (auto commit : commits) {
+    edges[commit.curr_hash] = commit.parent_hash;
+    map_commits[commit.curr_hash] = commit;
+  }
+  vector<pair<string, size_t>> branches = get_branches();
+  size_t branch_hash;
+  for (int i = 0; i < branches.size(); i++) {
+    if (branches[i].first == metadata.curr_branch) {
+      branch_hash = branches[i].second;
+      break;
+    }
+  }
+  vector<Commit> commit_history;
+  while (branch_hash != 0) {
+    commit_history.push_back(map_commits[branch_hash]);
+    branch_hash = edges[branch_hash];
+  }
+  for (auto& commit : commit_history) {
     cout << "message: " << commit.message << endl
          << "timestamp: " << commit.timestamp << endl
-         << "hash: " << commit.hash << endl
+         << "hash: " << commit.curr_hash << endl
          << endl
          << "------------------" << endl
          << endl;
@@ -192,7 +220,7 @@ void Git::_checkout(string hash, FileType type, fs::path full_path) {
     entries.push_back(entry);
   }
   for (auto entry : entries) {
-    checkout(entry.hash, entry.type, full_path / entry.name);
+    _checkout(entry.hash, entry.type, full_path / entry.name);
   }
 }
 
@@ -210,6 +238,16 @@ void Git::checkout(string hash, FileType type, fs::path full_path) {
     tmp_hash = to_string(branches[is_branch].second);
     handle_delete_line(1, branches[is_branch].first,
                        (fs::path)metadata.root_path / ".git" / "metadata.txt");
+  } else {
+    for (int i = 0; i < branches.size(); i++) {
+      if (branches[i].first == metadata.curr_branch) {
+        is_branch = i;
+        break;
+      }
+    }
+    string to_write = "\"" + metadata.curr_branch + "\" " + hash;
+    handle_delete_line(is_branch, to_write,
+                       (fs::path)metadata.root_path / ".git" / "branches.txt");
   }
   _checkout(tmp_hash, type, full_path);
 }

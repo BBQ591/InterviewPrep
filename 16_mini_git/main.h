@@ -10,15 +10,15 @@ namespace fs = filesystem;
 
 #ifndef MAIN_H
 #define MAIN_H
+struct Commit {
+  string message;
+  int timestamp;
+  size_t curr_hash;
+  size_t parent_hash;
+};
 struct MetadataObject {
   string root_path;
   string curr_branch;
-};
-
-struct Commit {
-  string message;
-  size_t timestamp;
-  size_t hash;
 };
 
 enum class FileType { DIRECTORY, FILE };
@@ -53,6 +53,7 @@ class Git {
   pair<string, string> split_by_quote(string line);
   void _checkout(string hash, FileType type, fs::path full_path);
   vector<pair<string, size_t>> get_branches();
+  vector<Commit> get_commits();
 };
 
 #endif
