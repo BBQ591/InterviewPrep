@@ -1,0 +1,67 @@
+* List
+.add()
+.add(i, element) // adds element at index i
+.get()
+.remove(i) // removes element at index i
+.remove(Integer.valueOf(element)) // removes by value. we need to make sure to use that class because otherwise, it thinks it is an index
+indexOf(x) // getting index of element x
+.contains(element) // checking if it is in the list
+.subList(from, to) // getting sublist
+Collections.sort(list) // sorting
+Collections.reverse(list) // reversing
+Collections.max(list) // getting max of list
+.set(i, element) // sets element at index i
+
+* LinkedList
+.addFirst(x)
+.addLast(x)
+.removeFirst(x)
+.removeLast(x)
+.peekFirst()
+.peekLast()
+
+* HashSet
+.add(x)
+.remove(x)
+.contains(x)
+
+* TreeSet
+.remove(element)
+.first() // min
+.last() // max
+.floor(x) // greatest element <= x
+.ceiling(x) // smallest element >= x
+.lower(x) // largest element < x
+.higher(x) // smallest element > x
+.pollFirst(x) // remove smallest and return it
+.pollLast(x) // remove largest and return it
+.headSet(x) // all elements < x
+.tailSet(x) // all elements > x
+.subSet(from, to) // range view, both values not INDEXES
+.descendingSet() // reverse order view
+
+* HashMap
+.put(key, value)
+.get(key) // null if absent
+.getOrDefault(k, 0) // if its not there, then it returns 0
+.remove(key) // deleting a key
+.keySet(), .values() // list of keys and values
+.entrySet() // list of Map.entry<..., ...> entry, entry.getKey(), entry.getValue()
+for (Map.entry<Integer, Integer> entry : map.entrySet())
+
+* TreeMap
+.firstKey(), .lastKey()
+.floorKey(x), .ceilingKey()
+.floorEntry(x), .ceilingEntry(x)
+.firstEntry(), .lastEntry()
+.remove(key)
+.pollFirst()
+.pollLast()
+
+* Priority Queue
+PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Comparator.reverseOrder());
+.add(x) // adds element x
+.poll() // remove and return min/max
+.peek() // returns the min/max element
+.remove(x) // arbitrary removal

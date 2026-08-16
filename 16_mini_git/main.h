@@ -3,6 +3,7 @@
 #include <functional>
 #include <iostream>
 #include <ostream>
+#include <set>
 #include <sstream>
 #include <string>
 using namespace std;
@@ -10,6 +11,14 @@ namespace fs = filesystem;
 
 #ifndef MAIN_H
 #define MAIN_H
+
+struct Diff {
+  string file_name;
+  size_t hash1;
+  size_t hash2;
+  string diff;
+};
+
 struct Commit {
   string message;
   int timestamp;
@@ -42,7 +51,7 @@ class Git {
   void log();
   void checkout(string hash, FileType type, fs::path full_path);
   void create_branch(string name);
-  void diff(string hash1, string hash2);
+  vector<string> get_diff(size_t hash1, size_t hash2);
 
  private:
   MetadataObject parse_metadata(fs::path path);
@@ -54,6 +63,9 @@ class Git {
   void _checkout(string hash, FileType type, fs::path full_path);
   vector<pair<string, size_t>> get_branches();
   vector<Commit> get_commits();
+  unordered_map<string, size_t> get_children(size_t hash1);
+  string _diff(Diff diff);
+  vector<Commit> get_commit_history_hash(size_t hash);
 };
 
 #endif

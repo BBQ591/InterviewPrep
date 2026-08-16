@@ -1,0 +1,23 @@
+* Questions we need to ask
++ do we split up to float or to integer?
++ if we have some sort of remainder, what do we do? where do we fill in the remainder?
++ are Trades of structure price, qty, buy_id, sell_id?
++ are orders structure of price, qty, id, and side?
++ are ids always increasing?
+
+* Implementation
++ start with the skeleton, like what we will want to do
++ so we say something like
+  + "the first thing that we want to do is have an idea of an order and an idea of a trade"
+  + "i think we can think of this problem in two parts. full transactions and then partial transactions"
+  + "we can first consider full transactions. we will take the opposite side's best price/qty, then if it matches, then we will execute the trade"
+    + "we will continue to do this until no full orders can be executed"
+  + "for partial orders, we will check the price and see if it will match with the current order. we are guaranteed that if it matches, then it has quantity more than the current order"
++ start with just adding order api
+  + start out with a list of orders as the entry, then expand to the price, total_qty
+  + we also want to use a set because order doesnt matter. if we need ordering, we can just sort later
+  + in Entry, we have price, total_qty, Set<Order> orders
+
+* Using a map
++ Map.entry<type, type> element = TreeMap.first/lastEntry();
++ .getKey(), .getValue()

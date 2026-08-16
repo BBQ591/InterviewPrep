@@ -144,7 +144,7 @@ vector<Commit> Git::get_commits() {
   return commits;
 }
 
-void Git::log() {
+vector<Commit> Git::get_commit_history_hash(size_t hash) {
   unordered_map<size_t, size_t> edges;
   unordered_map<size_t, Commit> map_commits;
   vector<Commit> commits = get_commits();
@@ -152,6 +152,15 @@ void Git::log() {
     edges[commit.curr_hash] = commit.parent_hash;
     map_commits[commit.curr_hash] = commit;
   }
+  vector<Commit> commit_history;
+  while (hash != 0) {
+    commit_history.push_back(map_commits[hash]);
+    hash = edges[hash];
+  }
+  return commits;
+}
+
+void Git::log() {
   vector<pair<string, size_t>> branches = get_branches();
   size_t branch_hash;
   for (int i = 0; i < branches.size(); i++) {
@@ -160,11 +169,9 @@ void Git::log() {
       break;
     }
   }
-  vector<Commit> commit_history;
-  while (branch_hash != 0) {
-    commit_history.push_back(map_commits[branch_hash]);
-    branch_hash = edges[branch_hash];
-  }
+
+  vector<Commit> commit_history = get_commit_history_hash(branch_hash);
+
   for (auto& commit : commit_history) {
     cout << "message: " << commit.message << endl
          << "timestamp: " << commit.timestamp << endl
@@ -323,4 +330,24 @@ void Git::create_branch(string branch_name) {
   out.close();
 }
 
-void Git::diff(string hash1, string hash2) {}
+unordered_map<string, size_t> Git::get_children(size_t hash) {}
+
+string Git::_diff(Diff diff) {}
+
+vector<string> Git::get_diff(size_t hash1, size_t hash2) {
+  // assume for now that these are all branches. dont even know what it means to
+  // not do that
+  unordered_map<string, size_t> children1 = get_children(hash1);
+  unordered_map<string, size_t> children2 = get_children(hash2);
+  vector<Diff> similar;
+  for (auto& [key, value] : children1) {
+    if (children2.count(key)) {
+      similar.push_back(Diff{key, value, children2[key], ""});
+    }
+  }
+  vector<Diff> all_diff;
+  for (auto& file : similar) {
+    string diff = _diff(file);
+    file.diff = diff;
+  }
+}

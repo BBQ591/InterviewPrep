@@ -46,7 +46,7 @@ class BuyerMarketplace:
         pass
 
     def replay(self):
-        pass
+
 
     def remove_buyers(self, buyers_to_exclude: set[str]) -> dict[str, int]:
         all_items = self.datastore.get_all()
