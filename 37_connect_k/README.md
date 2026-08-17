@@ -31,6 +31,23 @@ the column touches — and can complete lines for BOTH players at once.
 set; diagonals are excluded in this variant. Recheck only what could
 have changed: the pushed column, plus the rows it intersects.
 
+## Part 5 — reported intern follow-ups (any order, each ~20 min)
+
+These are the actual growth steps reported for the intern track
+(2024–2025 reports):
+
+- **Ejection.** Reintroduce a height bound H for this variant: a
+  bottom-insert into a FULL column pushes the top disc off the board —
+  it is removed from play. Decide: can an ejection un-make a win?
+- **Undo / redo.** `undo()` restores the previous full state —
+  including any ejected disc; `redo()` re-applies. A new move clears
+  the redo stack. The representation question: snapshots or inverse
+  operations? Ejection is why this is not trivial.
+- **Library refactor.** "You've finished the engine — now make it a
+  reusable library." Decide the public API surface: what a client
+  calls, what is hidden, where win-checking policy lives. No new
+  behavior; this part is graded entirely on interface judgment.
+
 ## Deliverables
 
 Implementation + tests. Test design is part of the work.

@@ -11,7 +11,7 @@ def test_flip():
     othello = Othello()
     new_move = othello.bot(Player.ONE)
     assert new_move is not None
-    new = othello.replay([new_move])
+    new = othello.replay([new_move], Player.ONE)
     curr_player = Player.TWO
     count = 0
     while count < 2:
@@ -22,7 +22,8 @@ def test_flip():
             count += 1
             continue
         count = 0
-        new = othello.replay([new_move])
+        print(new_move)
+        new = othello.replay([new_move], curr_player)
         curr_player = othello.get_opposite(curr_player)
     print_grid(othello.grid)
 

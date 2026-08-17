@@ -140,7 +140,93 @@ Rehearse these as 2-minute spoken answers — they are asked verbatim:
 10. Undefined behavior: three examples and why the compiler is allowed
     to do anything.
 
-## Priority (as of Aug 2026, interviews pending)
+---
+
+# INTERN TRACK — Jump / HRT / Jane Street (researched Aug 2026)
+
+Level-specific research; supersedes the general priority below for the
+intern loops. Full per-question provenance lives in the folder READMEs
+(36–38, 44, 46–48).
+
+## Jane Street SWE intern
+
+No OA, no take-home — every stage is live collaborative coding. One
+~45–60 min phone screen (occasionally two), then a final of ~3 one-hour
+sessions (often 2 interviewers each). One easy-medium seed per round,
+grown 2–3 stages; hints are expected and taking them well is scored;
+clean code + narration + reacting to feedback outweigh finishing. Any
+language. No math/brainteasers for SWE.
+
+Reported intern questions: the Connect Four family incl. bottom
+push-up, ejection on full columns, undo/redo, and a refactor-to-library
+part [37]; memo → bounded FIFO → LRU (their own retired-but-canonical
+template) [36]; brace matching → collapsible editor [38]; Snake + a
+computer player (2021 final) [47]; "design Tetris" [06 done]; thin
+one-offs: move encode/dispatch, tree-with-custom-hash.
+
+## HRT SWE intern
+
+Stages: CodeSignal OA → 1–2 phone screens → virtual multi-round final.
+OA = proctored GCA, 4 questions/70 min, /600, ~500+ passes; questions
+rotate from CodeSignal's bank (two reconstructed sets in [48]); a
+3-question/150-min cumulative format exists on some tracks. Phone: a
+30-min CoderPad LC-medium round, plus a knowledge round scoped "C++,
+OS, networks, algorithms, data structures" (OSTEP virtualization +
+concurrency chapters are the reported prep). Final: multi-round; one
+reported design-lite item is "design an abstract class for task
+scheduling — what state per task?" [26 is the rep], plus caching [36]
+and graph problems.
+
+## Jump SWE intern
+
+Stages: OA → 1–2 technical rounds → virtual final (2 technical + 2
+behavioral in the 2024 report); some campus reports skip the OA.
+OA = Codility, 3 problems (180 min in the 2020 report; the 2024 intern
+OA required C++) — reconstructed set in [48]. Verbatim intern-reported
+live question: the small-buffer-optimized vector [44]. Phone/onsite
+knowledge probes (high recurrence): smart pointers, std::forward, RAII,
+virtual destructor, stack vs heap, threading, TCP vs UDP, vector/
+unordered_map internals, lazy singleton, implement-a-mutex, loop-order
+cache effects. Easier screen fragments: Fibonacci, linked-list class,
+FizzBuzz, swap-without-temp, 8-balls scale puzzle.
+
+## C++ / systems drill list — intern additions
+
+Add to the 10-item list above (rehearse as 2-minute spoken answers):
+
+11. Smart pointers: unique vs shared vs weak; what shared_ptr costs;
+    when a raw pointer is correct.
+12. RAII in one breath + rule of three/five/zero.
+13. std::forward and perfect forwarding — what problem it solves.
+14. Why is vector<bool> a trap; what it does instead of bool storage.
+15. TCP vs UDP in 60 seconds, and when a trading system wants UDP
+    (multicast market data) vs TCP (order entry).
+16. Virtual destructor: exactly when its absence is UB.
+17. OSTEP-level OS: process vs thread, context switch cost, what a
+    page fault does, mutex vs spinlock trade-off.
+
+## Intern priority queue (Jump + HRT + JS)
+
+1. **Close the open ledger**: 42 + 45 test suites green. Non-negotiable
+   before new material.
+2. **37 Connect-K complete** incl. Part 5 variants (JS's most-reported
+   intern family) — then the blank-file rematch.
+3. **36 memo-cache, timed 60 min** (JS's own template).
+4. **48 Set A, proctored-style 70 min** (HRT OA format rehearsal);
+   Set C in C++ (Jump OA rehearsal); Set B later.
+5. **47 snake bot** (JS final rep; cheap on top of 08).
+6. **C++ verbal drills**, items 1–17, a few per day out loud — this is
+   half of every Jump/HRT intern phone screen.
+7. **38 code folding** (JS screen), **44 SBO vector** (Jump verbatim),
+   **26 job scheduler** (HRT final design-lite + sim rep).
+8. Then: 40 Parts 1–2 (trade-stream genre, intern-scoped), 43 malloc
+   (Jump recurring theme), 45/28/34 as extra sims.
+
+Deprioritized FOR INTERN loops: 19 nested transactions (do a
+single-level version at most), 22 basket orders (P1 only), 40 Parts
+3–4, 41 feed handler, 39 — full-time-flavored; keep for later cycles.
+
+## Priority — general/full-time (pre-intern-clarification, kept for reference)
 
 Protect: 36 → 37 → 22 → 19 → 41.
 Then: 40, 38, 26+28 timed, 42, 44.
